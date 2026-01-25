@@ -76,14 +76,14 @@ export const updateProfile = asyncHandler(
       console.log("Profile data:", profileData);
       console.log("Files:", files ? "present" : "not present");
 
-      // ✅ CLOUDINARY URLs (IMPORTANT CHANGE)
+      // ✅ LOCAL FILE PATHS
       if (files?.profile_photo?.[0]) {
-        profileData.profile_photo_url = files.profile_photo[0].path;
+        profileData.profile_photo_url = `/uploads/${files.profile_photo[0].filename}`;
         console.log("Profile photo URL:", profileData.profile_photo_url);
       }
 
       if (files?.cover_photo?.[0]) {
-        profileData.cover_photo_url = files.cover_photo[0].path;
+        profileData.cover_photo_url = `/uploads/${files.cover_photo[0].filename}`;
         console.log("Cover photo URL:", profileData.cover_photo_url);
       }
 

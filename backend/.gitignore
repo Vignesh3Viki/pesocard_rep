@@ -24,5 +24,6 @@ Thumbs.db
 *.swp
 *.swo
 
-# Uploads (if storing locally)
-uploads/
+# Uploads (ignore files but keep folder structure)
+uploads/*
+!uploads/.gitkeep
