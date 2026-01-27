@@ -1,39 +1,68 @@
-import React, { forwardRef } from 'react';
-import { getImageUrl } from '@/lib/imageUtils';
-import PesocardLogo from '@/assets/images/pesocard-logo.svg';
+import React, { forwardRef } from "react";
+import { getImageUrl } from "@/lib/imageUtils";
+import PesocardLogo from "@/assets/images/pesocard-logo.svg";
+
+const getMobileWallpaperSize = () => {
+  if (typeof window === "undefined") {
+    // fallback for SSR / build
+    return { width: 540, height: 720 };
+  }
+
+  const dpr = window.devicePixelRatio || 1;
+
+  return {
+    width: Math.round(window.screen.width * dpr),
+    height: Math.round(window.screen.height * dpr),
+  };
+};
 
 export const Wallpaper = forwardRef(
-  (
-    {
-      profile,
-      qrCodeUrl,
-      isDesktop = true,
-    },
-    ref
-  ) => {
+  ({ profile, qrCodeUrl, isDesktop = true }, ref) => {
     const desktopSize = { width: 1080, height: 1080 };
-    const mobileSize = { width: 540, height: 720 };
+    const mobileSize = getMobileWallpaperSize();
+
     const size = isDesktop ? desktopSize : mobileSize;
+
+    const MAX_WIDTH = 1440;
+
+    if (!isDesktop && size.width > MAX_WIDTH) {
+      const ratio = size.height / size.width;
+      size.width = MAX_WIDTH;
+      size.height = Math.round(MAX_WIDTH * ratio);
+    }
 
     return (
       <div
         ref={ref}
         className="rounded-[32px] p-10 flex flex-col items-center justify-center shadow-2xl relative overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, #120C1D 0%, #171429 25%, #261B32 50%, #322239 75%, #141221 100%)',
+          background:
+            "linear-gradient(135deg, #120C1D 0%, #171429 25%, #261B32 50%, #322239 75%, #141221 100%)",
           width: `${size.width}px`,
           height: `${size.height}px`,
-          maxWidth: 'none',
-          aspectRatio: 'auto',
-          border: '1px solid #8040BF26',
-          backdropFilter: 'blur(20px)',
+          maxWidth: "none",
+          aspectRatio: "auto",
+          border: "1px solid #8040BF26",
+          backdropFilter: "blur(20px)",
         }}
       >
         {/* Decorative Corner Borders */}
-        <div className="absolute top-6 left-6 w-8 h-8 border-t-2 border-l-2 border-slate-700 rounded-tl-lg" style={{ borderColor: '#8040BF40' }}></div>
-        <div className="absolute top-6 right-6 w-8 h-8 border-t-2 border-r-2 border-slate-700 rounded-tr-lg" style={{ borderColor: '#8040BF40' }}></div>
-        <div className="absolute bottom-6 left-6 w-8 h-8 border-b-2 border-l-2 border-slate-700 rounded-bl-lg" style={{ borderColor: '#8040BF40' }}></div>
-        <div className="absolute bottom-6 right-6 w-8 h-8 border-b-2 border-r-2 border-slate-700 rounded-br-lg" style={{ borderColor: '#8040BF40' }}></div>
+        <div
+          className="absolute top-6 left-6 w-8 h-8 border-t-2 border-l-2 border-slate-700 rounded-tl-lg"
+          style={{ borderColor: "#8040BF40" }}
+        ></div>
+        <div
+          className="absolute top-6 right-6 w-8 h-8 border-t-2 border-r-2 border-slate-700 rounded-tr-lg"
+          style={{ borderColor: "#8040BF40" }}
+        ></div>
+        <div
+          className="absolute bottom-6 left-6 w-8 h-8 border-b-2 border-l-2 border-slate-700 rounded-bl-lg"
+          style={{ borderColor: "#8040BF40" }}
+        ></div>
+        <div
+          className="absolute bottom-6 right-6 w-8 h-8 border-b-2 border-r-2 border-slate-700 rounded-br-lg"
+          style={{ borderColor: "#8040BF40" }}
+        ></div>
 
         {/* Main Content */}
         <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-12">
@@ -103,10 +132,9 @@ export const Wallpaper = forwardRef(
         </div>
       </div>
     );
-  }
+  },
 );
 
-Wallpaper.displayName = 'Wallpaper';
+Wallpaper.displayName = "Wallpaper";
 
 export default Wallpaper;
-
