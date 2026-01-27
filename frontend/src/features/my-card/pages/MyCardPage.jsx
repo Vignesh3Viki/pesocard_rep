@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import QRCode from "qrcode";
+import { toPng } from "html-to-image";
 import { v4 as uuidv4 } from "uuid";
 import {
   MdEdit,
@@ -16,6 +17,7 @@ import SettingsIcon from "@/assets/Settings.svg";
 import PesocardLogo from "@/assets/images/pesocard-logo.svg";
 import PageFooter from "@/components/PageFooter";
 import { ContactIcons } from "@/components/ContactIcons";
+import { Wallpaper } from "../components";
 import editProfileService from "../../edit-profile/services/editProfileService";
 import { toast } from "sonner";
 import { getImageUrl } from "@/lib/imageUtils";
@@ -53,7 +55,9 @@ const MyCardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showQR, setShowQR] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
   const cardMenuRef = useRef(null);
+  const wallpaperRef = useRef(null);
   const [encryptedUserId, setEncryptedUserId] = useState(null);
   const [profile, setProfile] = useState({
     user_id: null,
@@ -76,6 +80,16 @@ const MyCardPage = () => {
     shares: 0,
     save_rate_percentage: 0,
   });
+
+  // Handle resize to detect device type
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth > 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Close card menu when clicking outside
   useEffect(() => {
@@ -143,6 +157,34 @@ const MyCardPage = () => {
 
     fetchProfile();
   }, []);
+
+  // Generate QR code automatically when profile is loaded
+  useEffect(() => {
+    const generateQRCode = async () => {
+      if (!encryptedUserId) return;
+
+      try {
+        const baseUrl = process.env.REACT_APP_API_URL;
+        const qrUrl = `${baseUrl}/analytics/qr/${encodeURIComponent(encryptedUserId)}`;
+
+        const qrDataUrl = await QRCode.toDataURL(qrUrl, {
+          errorCorrectionLevel: "H",
+          type: "image/png",
+          width: 300,
+          margin: 2,
+          color: {
+            dark: "#000000",
+            light: "#FFFFFF",
+          },
+        });
+        setQrCodeUrl(qrDataUrl);
+      } catch (error) {
+        console.error("QR generation error:", error);
+      }
+    };
+
+    generateQRCode();
+  }, [encryptedUserId]);
 
   // Track UNIQUE view when component loads (only once per visitor)
   useEffect(() => {
@@ -295,41 +337,47 @@ const MyCardPage = () => {
 
   const handleSaveContact = async () => {
     try {
-      const API_URL = process.env.REACT_APP_API_URL;
-      const token = localStorage.getItem("token");
+      if (!wallpaperRef.current) {
+        toast.error("Wallpaper not ready");
+        return;
+      }
 
-      // Call the backend API to download vCard with encrypted userId
-      const response = await axios.get(`${API_URL}/auth/download-vcard`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        responseType: "blob",
+      toast.loading("Generating wallpaper...");
+
+      // Set dimensions based on device type
+      const exportDimensions = isDesktop 
+        ? { width: 1080, height: 1080 }
+        : { width: 540, height: 720 };
+
+      // Convert wallpaper to PNG image
+      const dataUrl = await toPng(wallpaperRef.current, {
+        width: exportDimensions.width,
+        height: exportDimensions.height,
+        pixelRatio: 2,
+        cacheBust: true,
       });
 
-      // Create blob and download
-      const blob = new Blob([response.data], {
-        type: "text/vcard;charset=utf-8",
-      });
-      const url = URL.createObjectURL(blob);
+      // Create download link
       const link = document.createElement("a");
-
+      
       const fileName = `${profile.first_name || "user"}-${
-        profile.second_name || "contact"
+        profile.second_name || "wallpaper"
       }`
         .toLowerCase()
         .replace(/\s+/g, "-");
 
-      link.href = url;
-      link.download = `${fileName}.vcf`;
+      link.href = dataUrl;
+      link.download = `${fileName}-wallpaper.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url);
 
-      toast.success("Contact saved successfully!");
+      toast.dismiss();
+      toast.success("Wallpaper downloaded successfully!");
     } catch (error) {
-      console.error("Error saving contact:", error);
-      toast.error("Failed to save contact");
+      console.error("Error downloading wallpaper:", error);
+      toast.dismiss();
+      toast.error("Failed to download wallpaper");
     }
   };
    const handleSaveQRImage = async () => {
@@ -438,6 +486,10 @@ const MyCardPage = () => {
 
   return (
     <div className="min-h-screen flex justify-center w-full lg:bg-gray-50">
+      {/* Hidden Wallpaper Component for Export */}
+      <div className="hidden">
+        <Wallpaper ref={wallpaperRef} profile={profile} qrCodeUrl={qrCodeUrl} isDesktop={isDesktop} />
+      </div>
       <div className="flex flex-col w-full lg:max-w-[432px]">
         {/* Header */}
         <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-center relative lg:rounded-t-2xl">
@@ -708,35 +760,37 @@ const MyCardPage = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-2 sm:gap-3 w-full">
-                      <button
-                        onClick={handleShareClick}
-                        className="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 bg-[#101828] text-white rounded-[12px] sm:rounded-[14px] hover:bg-gray-800 transition-colors text-[11px] sm:text-[12.9px] whitespace-nowrap"
-                        title="Share your digital card"
-                      >
-                        <MdShare className="w-3 sm:w-4 h-3 sm:h-4 text-white flex-shrink-0" />
-                        <span className="leading-[14px] sm:leading-[20px]">
-                          Share
-                        </span>
-                      </button>
-                      <button
-                        onClick={handleQRClick}
-                        className="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 bg-[#F3F4F6] text-[#101828] rounded-[12px] sm:rounded-[14px] hover:bg-gray-200 transition-colors text-[11px] sm:text-[13.3px] whitespace-nowrap"
-                        title="Generate QR code and download contact"
-                      >
-                        <MdQrCode2 className="w-3 sm:w-4 h-3 sm:h-4 text-[#101828] flex-shrink-0" />
-                        <span className="leading-[14px] sm:leading-[20px]">
-                          QR
-                        </span>
-                      </button>
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex gap-2 sm:gap-3 w-full">
+                        <button
+                          onClick={handleShareClick}
+                          className="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 bg-[#101828] text-white rounded-[12px] sm:rounded-[14px] hover:bg-gray-800 transition-colors text-[11px] sm:text-[12.9px] whitespace-nowrap"
+                          title="Share your digital card"
+                        >
+                          <MdShare className="w-3 sm:w-4 h-3 sm:h-4 text-white flex-shrink-0" />
+                          <span className="leading-[14px] sm:leading-[20px]">
+                            Share
+                          </span>
+                        </button>
+                        <button
+                          onClick={handleQRClick}
+                          className="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 bg-[#F3F4F6] text-[#101828] rounded-[12px] sm:rounded-[14px] hover:bg-gray-200 transition-colors text-[11px] sm:text-[13.3px] whitespace-nowrap"
+                          title="Generate QR code and download contact"
+                        >
+                          <MdQrCode2 className="w-3 sm:w-4 h-3 sm:h-4 text-[#101828] flex-shrink-0" />
+                          <span className="leading-[14px] sm:leading-[20px]">
+                            QR
+                          </span>
+                        </button>
+                      </div>
                       <button
                         onClick={handleSaveContact}
-                        className="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 bg-[#10B981] text-white rounded-[12px] sm:rounded-[14px] hover:bg-emerald-600 transition-colors text-[11px] sm:text-[12.9px] whitespace-nowrap"
-                        title="Download contact as vCard"
+                        className="w-full flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 bg-[#10B981] text-white rounded-[12px] sm:rounded-[14px] hover:bg-emerald-600 transition-colors text-[11px] sm:text-[12.9px] whitespace-nowrap"
+                        title="Download wallpaper"
                       >
                         <MdDownload className="w-3 sm:w-4 h-3 sm:h-4 text-white flex-shrink-0" />
                         <span className="leading-[14px] sm:leading-[20px]">
-                          Save
+                          Save Wallpaper
                         </span>
                       </button>
                     </div>

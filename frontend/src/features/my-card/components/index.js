@@ -1,1 +1,1 @@
-// Components placeholder
+export { default as Wallpaper } from './Wallpaper';
