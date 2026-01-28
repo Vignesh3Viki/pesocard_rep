@@ -14,7 +14,7 @@ import { generateToken, verifyToken } from "../../utils/jwt";
 
 export const trackView = asyncHandler(async (req: Request, res: Response) => {
   const { visitor_id, country_name } = req.body;
-  
+
   // Extract share token from Authorization header
   const authHeader = req.headers.authorization || "";
   const parts = authHeader.split(" ");
@@ -29,7 +29,7 @@ export const trackView = asyncHandler(async (req: Request, res: Response) => {
     sendError(res, "Invalid or expired authorization token", 401);
     return;
   }
-  
+
   const card_share_id = decoded?.sid;
   if (!card_share_id) {
     sendError(res, "Invalid share token", 401);
@@ -46,7 +46,7 @@ export const trackView = asyncHandler(async (req: Request, res: Response) => {
 
 export const trackSave = asyncHandler(async (req: Request, res: Response) => {
   const { visitor_id } = req.body;
-  
+
   // Extract share token from Authorization header
   const authHeader = req.headers.authorization || "";
   const parts = authHeader.split(" ");
@@ -61,7 +61,7 @@ export const trackSave = asyncHandler(async (req: Request, res: Response) => {
     sendError(res, "Invalid or expired authorization token", 401);
     return;
   }
-  
+
   const card_share_id = decoded?.sid;
   if (!card_share_id) {
     sendError(res, "Invalid share token", 401);
@@ -79,7 +79,7 @@ export const trackSave = asyncHandler(async (req: Request, res: Response) => {
 export const trackProfileVisit = asyncHandler(
   async (req: Request, res: Response) => {
     const { visitor_id, visiting_source } = req.body;
-    
+
     // Extract share token from Authorization header
     const authHeader = req.headers.authorization || "";
     const parts = authHeader.split(" ");
@@ -94,7 +94,7 @@ export const trackProfileVisit = asyncHandler(
       sendError(res, "Invalid or expired authorization token", 401);
       return;
     }
-    
+
     const card_share_id = decoded?.sid;
     if (!card_share_id) {
       sendError(res, "Invalid share token", 401);
@@ -248,11 +248,18 @@ export const handleQRScan = asyncHandler(
       return;
     }
 
-    // Decrypt the user ID from QR code
-    const decryptedUserId = decryptUserId(
-      decodeURIComponent(String(encryptedUserId))
+    // Decrypt the user ID from QR code (guard against malformed encoding)
+    let decodedEncryptedUserId: string;
 
-    );
+    try {
+      decodedEncryptedUserId = decodeURIComponent(String(encryptedUserId));
+    } catch {
+      sendError(res, "Invalid or expired QR code", 400);
+      return;
+    }
+
+    const decryptedUserId = decryptUserId(decodedEncryptedUserId);
+
     if (!decryptedUserId) {
       sendError(res, "Invalid or expired QR code", 400);
       return;
@@ -274,6 +281,8 @@ export const handleQRScan = asyncHandler(
     );
 
     // Redirect to the card page with the share token
-    res.redirect(`${process.env.WEBSITE_URL}/my-card/${encodeURIComponent(token)}`);
+    res.redirect(
+      `${process.env.WEBSITE_URL}/my-card/${encodeURIComponent(token)}`,
+    );
   },
 );
