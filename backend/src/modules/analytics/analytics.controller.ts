@@ -250,7 +250,8 @@ export const handleQRScan = asyncHandler(
 
     // Decrypt the user ID from QR code
     const decryptedUserId = decryptUserId(
-      decodeURIComponent(encryptedUserId),
+      decodeURIComponent(String(encryptedUserId))
+
     );
     if (!decryptedUserId) {
       sendError(res, "Invalid or expired QR code", 400);
