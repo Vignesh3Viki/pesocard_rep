@@ -14,7 +14,7 @@ import { generateToken, verifyToken } from "../../utils/jwt";
 
 export const trackView = asyncHandler(async (req: Request, res: Response) => {
   const { visitor_id, country_name } = req.body;
-  
+
   // Extract share token from Authorization header
   const authHeader = req.headers.authorization || "";
   const parts = authHeader.split(" ");
@@ -29,7 +29,7 @@ export const trackView = asyncHandler(async (req: Request, res: Response) => {
     sendError(res, "Invalid or expired authorization token", 401);
     return;
   }
-  
+
   const card_share_id = decoded?.sid;
   if (!card_share_id) {
     sendError(res, "Invalid share token", 401);
@@ -46,7 +46,7 @@ export const trackView = asyncHandler(async (req: Request, res: Response) => {
 
 export const trackSave = asyncHandler(async (req: Request, res: Response) => {
   const { visitor_id } = req.body;
-  
+
   // Extract share token from Authorization header
   const authHeader = req.headers.authorization || "";
   const parts = authHeader.split(" ");
@@ -61,7 +61,7 @@ export const trackSave = asyncHandler(async (req: Request, res: Response) => {
     sendError(res, "Invalid or expired authorization token", 401);
     return;
   }
-  
+
   const card_share_id = decoded?.sid;
   if (!card_share_id) {
     sendError(res, "Invalid share token", 401);
@@ -79,7 +79,7 @@ export const trackSave = asyncHandler(async (req: Request, res: Response) => {
 export const trackProfileVisit = asyncHandler(
   async (req: Request, res: Response) => {
     const { visitor_id, visiting_source } = req.body;
-    
+
     // Extract share token from Authorization header
     const authHeader = req.headers.authorization || "";
     const parts = authHeader.split(" ");
@@ -94,7 +94,7 @@ export const trackProfileVisit = asyncHandler(
       sendError(res, "Invalid or expired authorization token", 401);
       return;
     }
-    
+
     const card_share_id = decoded?.sid;
     if (!card_share_id) {
       sendError(res, "Invalid share token", 401);
@@ -170,10 +170,10 @@ export const generateShareLink = asyncHandler(
     // Record share event as shareLink and capture share idq
     const share = await createCardShare(userId, type);
 
-    // Generate a 20-minute token tied to this user/card
+    // Generate a token tied to this user/card (no expiry)
     const token = generateToken(
       { sid: share.id, userId: userId, type: type },
-      "20m",
+      "999y",
     );
 
     // Frontend will build the URL; return token, share_id, and suggested path pattern
@@ -220,7 +220,7 @@ export const getProfileAnalytics = asyncHandler(
           profile_views: 0,
           profile_visits: 0,
           rates: {
-            save_rate_percentage: 0,
+            View_rate_percentage: 0,
             share_rate_percentage: 0,
             visit_rate_percentage: 0,
           },
@@ -248,11 +248,18 @@ export const handleQRScan = asyncHandler(
       return;
     }
 
-    // Decrypt the user ID from QR code
-    const decryptedUserId = decryptUserId(
-      decodeURIComponent(String(encryptedUserId))
+    // Decrypt the user ID from QR code (guard against malformed encoding)
+    let decodedEncryptedUserId: string;
 
-    );
+    try {
+      decodedEncryptedUserId = decodeURIComponent(String(encryptedUserId));
+    } catch {
+      sendError(res, "Invalid or expired QR code", 400);
+      return;
+    }
+
+    const decryptedUserId = decryptUserId(decodedEncryptedUserId);
+
     if (!decryptedUserId) {
       sendError(res, "Invalid or expired QR code", 400);
       return;
@@ -267,13 +274,15 @@ export const handleQRScan = asyncHandler(
     // Create a card share record for QR scan tracking
     const share = await createCardShare(userId, "QR");
 
-    // Generate a 20-minute token tied to this user/card
+    // Generate a token tied to this user/card (no expiry)
     const token = generateToken(
       { sid: share.id, userId: userId, type: "QR" },
-      "20m",
+      "999y",
     );
 
     // Redirect to the card page with the share token
-    res.redirect(`${process.env.WEBSITE_URL}/my-card/${encodeURIComponent(token)}`);
+    res.redirect(
+      `${process.env.WEBSITE_URL}/my-card/${encodeURIComponent(token)}`,
+    );
   },
 );

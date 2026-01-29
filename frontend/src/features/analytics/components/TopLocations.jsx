@@ -12,7 +12,7 @@ const TopLocations = ({ data = [] }) => {
       .map((item) => ({
         id: item.country,
         location: item.country,
-        value: item.users,
+        value: item.views,
       }))
       .sort((a, b) => b.value - a.value);
   };
