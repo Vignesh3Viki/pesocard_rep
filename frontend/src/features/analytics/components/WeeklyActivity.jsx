@@ -1,28 +1,49 @@
 import React from "react";
 
 const WeeklyActivity = ({ data = [] }) => {
+  // Map day numbers (0-6) to day names
+  const dayMap = {
+    0: "Sun",
+    1: "Mon",
+    2: "Tue",
+    3: "Wed",
+    4: "Thu",
+    5: "Fri",
+    6: "Sat",
+  };
+
   // Transform API data to chart format
   const transformData = () => {
-    if (data.length === 0) {
-      return [
-        { day: "Mon", value: 0, percentage: 0 },
-        { day: "Tue", value: 0, percentage: 0 },
-        { day: "Wed", value: 0, percentage: 0 },
-        { day: "Thu", value: 0, percentage: 0 },
-        { day: "Fri", value: 0, percentage: 0 },
-        { day: "Sat", value: 0, percentage: 0 },
-        { day: "Sun", value: 0, percentage: 0 },
-      ];
+    // Initialize all 7 days with 0 values
+    const weekData = {
+      0: { day: "Sun", value: 0 },
+      1: { day: "Mon", value: 0 },
+      2: { day: "Tue", value: 0 },
+      3: { day: "Wed", value: 0 },
+      4: { day: "Thu", value: 0 },
+      5: { day: "Fri", value: 0 },
+      6: { day: "Sat", value: 0 },
+    };
+
+    // Fill in data from API
+    if (data && data.length > 0) {
+      data.forEach((item) => {
+        const dayNum = parseInt(item.day);
+        weekData[dayNum].value = item.count || 0;
+      });
     }
 
+    // Convert to array in correct order (Sun to Sat)
+    const dataArray = Object.values(weekData);
+
     // Find max value for percentage calculation
-    const maxValue = Math.max(...data.map((item) => item.views || 0));
-    
-    return data.map((item) => ({
+    const maxValue = Math.max(...dataArray.map((item) => item.value || 0));
+
+    return dataArray.map((item) => ({
       day: item.day,
-      value: item.views || 0,
-      percentage: maxValue > 0 ? (item.views / maxValue) * 100 : 0,
-      isMax: item.views === maxValue && maxValue > 0,
+      value: item.value || 0,
+      percentage: maxValue > 0 ? (item.value / maxValue) * 100 : 0,
+      isMax: item.value === maxValue && maxValue > 0,
     }));
   };
 

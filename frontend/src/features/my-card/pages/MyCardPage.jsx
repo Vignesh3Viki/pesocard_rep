@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import QRCode from "qrcode";
 import { toPng } from "html-to-image";
@@ -27,14 +27,19 @@ const MyCardPage = () => {
   const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   // Get or create visitor ID (persists across sessions)
-  const getVisitorId = () => {
-    let visitorId = localStorage.getItem("visitor_id");
-    if (!visitorId) {
-      visitorId = uuidv4();
-      localStorage.setItem("visitor_id", visitorId);
-    }
-    return visitorId;
-  };
+
+
+const getVisitorId = () => {
+  let visitorId = localStorage.getItem("visitor_id");
+
+  if (!visitorId) {
+    visitorId = uuidv4();
+    localStorage.setItem("visitor_id", visitorId);
+  }
+
+  return visitorId;
+};
+
 
   // Track unique view (only counts each visitor once)
   const trackUniqueView = async () => {
@@ -186,14 +191,29 @@ const MyCardPage = () => {
     generateQRCode();
   }, [encryptedUserId]);
 
-  // Track UNIQUE view when component loads (only once per visitor)
-  useEffect(() => {
-    if (!profile || profile.user_id === null) return;
-    trackUniqueView();
-    fetchAnalytics();
-  }, [profile]);
+  const trackProfileVisit = async (source) => {
+  try {
+    await axios.post(
+      `${API_BASE_URL}/analytics/profile-visit`,
+      {
+        visitor_id: getVisitorId(),         
+        visiting_source: source,          
+      },
+      {
+        headers: {
+          Authorization: localStorage.getItem("share_token")
+            ? `Bearer ${localStorage.getItem("share_token")}`
+            : "",
+        },
+      }
+    );
+  } catch (err) {
+    console.warn("Profile visit tracking failed", err);
+  }
+};
 
-  const fetchAnalytics = async () => {
+
+  const fetchAnalytics = useCallback(async () => {
     const authToken = localStorage.getItem("token");
     axios
       .get(`${API_BASE_URL}/analytics/metrics`, {
@@ -210,8 +230,13 @@ const MyCardPage = () => {
         });
       })
       .catch((error) => console.error("Error fetching analytics:", error));
-  };
-
+  }, [API_BASE_URL]);
+  // Track UNIQUE view when component loads (only once per visitor)
+  useEffect(() => {
+    if (!profile || profile.user_id === null) return;
+    trackUniqueView();
+    fetchAnalytics();
+  }, [profile, fetchAnalytics]);
   // Auto-download VCF when user scans QR code with download parameter
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -345,7 +370,7 @@ const MyCardPage = () => {
       toast.loading("Generating wallpaper...");
 
       // Set dimensions based on device type
-      const exportDimensions = isDesktop 
+      const exportDimensions = isDesktop
         ? { width: 1080, height: 1080 }
         : { width: 540, height: 720 };
 
@@ -359,7 +384,7 @@ const MyCardPage = () => {
 
       // Create download link
       const link = document.createElement("a");
-      
+
       const fileName = `${profile.first_name || "user"}-${
         profile.second_name || "wallpaper"
       }`
@@ -380,7 +405,7 @@ const MyCardPage = () => {
       toast.error("Failed to download wallpaper");
     }
   };
-   const handleSaveQRImage = async () => {
+  const handleSaveQRImage = async () => {
     try {
       if (!qrCodeUrl) {
         toast.error("QR code not available");
@@ -390,11 +415,11 @@ const MyCardPage = () => {
       // Convert data URL to blob
       const response = await fetch(qrCodeUrl);
       const blob = await response.blob();
-      
+
       // Create download link
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      
+
       const fileName = `${profile.first_name || "user"}-${
         profile.second_name || "contact"
       }`
@@ -488,7 +513,12 @@ const MyCardPage = () => {
     <div className="min-h-screen flex justify-center w-full lg:bg-gray-50">
       {/* Hidden Wallpaper Component for Export */}
       <div className="hidden">
-        <Wallpaper ref={wallpaperRef} profile={profile} qrCodeUrl={qrCodeUrl} isDesktop={isDesktop} />
+        <Wallpaper
+          ref={wallpaperRef}
+          profile={profile}
+          qrCodeUrl={qrCodeUrl}
+          isDesktop={isDesktop}
+        />
       </div>
       <div className="flex flex-col w-full lg:max-w-[432px]">
         {/* Header */}
@@ -717,6 +747,7 @@ const MyCardPage = () => {
                           href={profile.website_url}
                           target="_blank"
                           rel="noopener noreferrer"
+                           onClick={() => trackProfileVisit("website")}
                           className="w-full flex items-center gap-3 p-3 bg-[#FAF5FF] rounded-[14px] hover:bg-purple-100 transition-colors"
                         >
                           <img
@@ -740,6 +771,7 @@ const MyCardPage = () => {
                           href={profile.linkedin_url}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => trackProfileVisit("linkedin")}
                           className="w-full flex items-center gap-3 p-3 bg-[#EFF6FF] rounded-[14px] hover:bg-blue-100 transition-colors"
                         >
                           <img

@@ -6,7 +6,7 @@ import CardPerformance from "../components/CardPerformance";
 import TopLocations from "./TopLocations";
 import RecentActivity from "./RecentActivity";
 import TodayVsYesterday from "./TodayVsYesterday";
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 
 import EyeIcon from "@/assets/icons/eye.svg";
 import PeopleIcon from "@/assets/icons/people.svg";
@@ -30,19 +30,41 @@ const UserAnalytics = ({ data = {} }) => {
   const weeklyActivityData = data?.weekly_activity || [];
 
   // Get filtered data based on active filter
+  // Uses backend-calculated percentage changes (today vs yesterday, week vs last week, month vs last month)
   const getFilteredData = () => {
     switch (activeFilter) {
       case "week":
-        return data?.this_week || { views: 0, shares: 0, visits: 0 };
+        return {
+          data: data?.this_week || { views: 0, shares: 0, visits: 0, views_change: 0, shares_change: 0, visits_change: 0 },
+          percentages: {
+            views_change: data?.this_week?.views_change || 0,
+            shares_change: data?.this_week?.shares_change || 0,
+            visits_change: data?.this_week?.visits_change || 0,
+          },
+        };
       case "month":
-        return data?.this_month || { views: 0, shares: 0, visits: 0 };
+        return {
+          data: data?.this_month || { views: 0, shares: 0, visits: 0, views_change: 0, shares_change: 0, visits_change: 0 },
+          percentages: {
+            views_change: data?.this_month?.views_change || 0,
+            shares_change: data?.this_month?.shares_change || 0,
+            visits_change: data?.this_month?.visits_change || 0,
+          },
+        };
       case "today":
       default:
-        return data?.today || { views: 0, shares: 0, visits: 0 };
+        return {
+          data: data?.today || { views: 0, shares: 0, visits: 0, views_change: 0, shares_change: 0, visits_change: 0 },
+          percentages: {
+            views_change: data?.today?.views_change || 0,
+            shares_change: data?.today?.shares_change || 0,
+            visits_change: data?.today?.visits_change || 0,
+          },
+        };
     }
   };
 
-  const filteredData = getFilteredData();
+  const { data: filteredData, percentages: filteredPercentages } = getFilteredData();
 
   return (
     <div className="flex-1 overflow-y-auto hide-scrollbar px-3 sm:px-4 md:px-6">
@@ -65,8 +87,8 @@ const UserAnalytics = ({ data = {} }) => {
           icon={EyeIcon}
           title={filteredData.views.toLocaleString()}
           subtitle="Profile Views"
-          percentageChange={`${rates.save_rate_percentage || 0}%`}
-          trendIcon={TrendingUp}
+          percentageChange={(filteredPercentages.views_change || 0).toFixed(2)}
+          trendIcon={(filteredPercentages.views_change || 0) >= 0 ? TrendingUp : TrendingDown}
           iconBgColor="#EFF6FF"
         />
 
@@ -74,8 +96,8 @@ const UserAnalytics = ({ data = {} }) => {
           icon={PeopleIcon}
           title={filteredData.visits.toLocaleString()}
           subtitle="Profile Visits"
-          percentageChange={`${rates.visit_rate_percentage || 0}%`}
-          trendIcon={TrendingUp}
+          percentageChange={(filteredPercentages.visits_change || 0).toFixed(2)}
+          trendIcon={(filteredPercentages.visits_change || 0) >= 0 ? TrendingUp : TrendingDown}
           iconBgColor="#FAF5FF"
         />
 
@@ -83,8 +105,8 @@ const UserAnalytics = ({ data = {} }) => {
           icon={ShareIcon}
           title={filteredData.shares.toLocaleString()}
           subtitle="Card Shares"
-          percentageChange={`${rates.share_rate_percentage || 0}%`}
-          trendIcon={TrendingUp}
+          percentageChange={(filteredPercentages.shares_change || 0).toFixed(2)}
+          trendIcon={(filteredPercentages.shares_change || 0) >= 0 ? TrendingUp : TrendingDown}
           iconBgColor="#F0FDF4"
         />
       </div>

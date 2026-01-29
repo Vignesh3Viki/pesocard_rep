@@ -220,7 +220,7 @@ export const getProfileAnalytics = asyncHandler(
           profile_views: 0,
           profile_visits: 0,
           rates: {
-            save_rate_percentage: 0,
+            View_rate_percentage: 0,
             share_rate_percentage: 0,
             visit_rate_percentage: 0,
           },

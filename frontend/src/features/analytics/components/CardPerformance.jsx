@@ -5,7 +5,7 @@ const CardPerformance = ({ rates = {} }) => {
   const performanceData = [
     {
       id: 1,
-      percentage: `${rates.visit_rate_percentage || 0}%`,
+      percentage: `${rates.view_rate_percentage || 0}%`,
       label: "View Rate",
       gradient: "from-[#2B7FFF] to-[#155DFC]",
     },
@@ -17,8 +17,8 @@ const CardPerformance = ({ rates = {} }) => {
     },
     {
       id: 3,
-      percentage: `${rates.save_rate_percentage || 0}%`,
-      label: "Save Rate",
+      percentage: `${rates.visit_rate_percentage || 0}%`,
+      label: "Visit Rate",
       gradient: "from-[#AD46FF] to-[#9810FA]",
     },
   ];

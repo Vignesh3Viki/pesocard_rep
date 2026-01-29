@@ -8,6 +8,12 @@ const AnalyticsOverviewCard = ({
   percentageChange,
   trendIcon: TrendIcon,
 }) => {
+  // Determine color and trend direction based on percentage value
+  const percentValue = parseFloat(percentageChange);
+  const isPositiveTrend = percentValue >= 0;
+  const trendColor = isPositiveTrend ? "#00C950" : "#EF4444";
+  const textColor = isPositiveTrend ? "text-[#00C950]" : "text-[#EF4444]";
+
   return (
     <div className="w-full bg-white border border-[#F3F4F6] rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-[17px] gap-2 flex flex-col shadow-md">
       {/* Icon Background */}
@@ -34,9 +40,14 @@ const AnalyticsOverviewCard = ({
 
       {/* Percentage Change */}
       <div className="w-full flex flex-row items-center gap-1">
-        {TrendIcon && <TrendIcon className="w-3 h-3 text-[#00C950]" />}
-        <p className="text-[9px] sm:text-xs font-poppins font-normal leading-3 sm:leading-4 text-[#00C950]">
-          {percentageChange}
+        {TrendIcon && (
+          <TrendIcon
+            style={{ color: trendColor }}
+            className={`w-3 h-3 ${isPositiveTrend ? "" : "transform rotate-180"}`}
+          />
+        )}
+        <p className={`text-[9px] sm:text-xs font-poppins font-normal leading-3 sm:leading-4 ${textColor}`}>
+          {percentageChange}%
         </p>
       </div>
     </div>
