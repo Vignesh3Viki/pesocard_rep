@@ -170,10 +170,10 @@ export const generateShareLink = asyncHandler(
     // Record share event as shareLink and capture share idq
     const share = await createCardShare(userId, type);
 
-    // Generate a 20-minute token tied to this user/card
+    // Generate a token tied to this user/card (no expiry)
     const token = generateToken(
       { sid: share.id, userId: userId, type: type },
-      "20m",
+      "999y",
     );
 
     // Frontend will build the URL; return token, share_id, and suggested path pattern
@@ -274,10 +274,10 @@ export const handleQRScan = asyncHandler(
     // Create a card share record for QR scan tracking
     const share = await createCardShare(userId, "QR");
 
-    // Generate a 20-minute token tied to this user/card
+    // Generate a token tied to this user/card (no expiry)
     const token = generateToken(
       { sid: share.id, userId: userId, type: "QR" },
-      "20m",
+      "999y",
     );
 
     // Redirect to the card page with the share token
