@@ -7,17 +7,29 @@ import routes from "./routes";
 import { errorHandler, notFound } from "./middleware/error.middleware";
 
 const app = express();
-app.use((req, res, next) => {
-  console.log("---- INCOMING REQUEST ----");
-  console.log("METHOD:", req.method);
-  console.log("URL:", req.originalUrl);
-  console.log("HEADERS:", {
-    authorization: req.headers.authorization,
-    origin: req.headers.origin,
-  });
-  console.log("--------------------------");
+const DEBUG_REQUEST_LOGS = process.env.DEBUG_REQUEST_LOGS === "true";
+
+app.use((req, _res, next) => {
+  if (DEBUG_REQUEST_LOGS) {
+    console.log("---- INCOMING REQUEST ----");
+    console.log("METHOD:", req.method);
+    console.log("ENV:", process.env.NODE_ENV);
+
+    // Path only (no query params)
+    console.log("PATH:", req.path);
+
+    // Redacted auth header
+    console.log("HEADERS:", {
+      authorization: req.headers.authorization ? "[REDACTED]" : undefined,
+      origin: req.headers.origin,
+    });
+
+    console.log("--------------------------");
+  }
+
   next();
 });
+
 // CORS configuration - for Render production
 const corsOptions = {
   origin: "*",
