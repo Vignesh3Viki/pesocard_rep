@@ -7,7 +7,17 @@ import routes from "./routes";
 import { errorHandler, notFound } from "./middleware/error.middleware";
 
 const app = express();
-
+app.use((req, res, next) => {
+  console.log("---- INCOMING REQUEST ----");
+  console.log("METHOD:", req.method);
+  console.log("URL:", req.originalUrl);
+  console.log("HEADERS:", {
+    authorization: req.headers.authorization,
+    origin: req.headers.origin,
+  });
+  console.log("--------------------------");
+  next();
+});
 // CORS configuration - for Render production
 const corsOptions = {
   origin: "*",
@@ -20,7 +30,7 @@ const corsOptions = {
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
-  })
+  }),
 );
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions)); // Preflight handler for all routes
@@ -37,7 +47,7 @@ app.use(
     res.header("Access-Control-Allow-Headers", "Content-Type");
     next();
   },
-  express.static(path.join(__dirname, "../uploads"))
+  express.static(path.join(__dirname, "../uploads")),
 );
 
 // Health check endpoint for monitoring
