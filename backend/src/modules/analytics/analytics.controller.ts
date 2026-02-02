@@ -241,20 +241,18 @@ export const getProfileAnalytics = asyncHandler(
 
 export const handleQRScan = asyncHandler(
   async (req: Request, res: Response) => {
-    const { encryptedUserId } = req.params;
+    const encryptedUserId = req.query.t || req.params.encryptedUserId;
 
     if (!encryptedUserId) {
       sendError(res, "Encrypted user ID required", 400);
       return;
     }
 
-    // Decrypt the user ID from QR code (guard against malformed encoding)
     let decodedEncryptedUserId: string;
-
     try {
       decodedEncryptedUserId = decodeURIComponent(String(encryptedUserId));
     } catch {
-      sendError(res, "Invalid or expired QR code", 400);
+      sendError(res, "Invalid QR code", 400);
       return;
     }
 
@@ -275,10 +273,7 @@ export const handleQRScan = asyncHandler(
     const share = await createCardShare(userId, "QR");
 
     // Generate a token tied to this user/card (no expiry)
-    const token = generateToken(
-      { sid: share.id, userId: userId, type: "QR" },
-      "999y",
-    );
+    const token = generateToken({ sid: share.id, userId: userId, type: "QR" });
 
     // Redirect to the card page with the share token
     res.redirect(

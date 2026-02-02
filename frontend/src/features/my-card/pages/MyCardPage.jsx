@@ -163,32 +163,11 @@ const getVisitorId = () => {
     fetchProfile();
   }, []);
 
-  // Generate QR code automatically when profile is loaded
+  // Generate QR code only when explicitly opening the QR modal (in handleQRClick)
+  // Auto-generating on load would use encryptedUserId as fallback
   useEffect(() => {
-    const generateQRCode = async () => {
-      if (!encryptedUserId) return;
-
-      try {
-        const baseUrl = process.env.REACT_APP_API_URL;
-        const qrUrl = `${baseUrl}/analytics/qr/${encodeURIComponent(encryptedUserId)}`;
-
-        const qrDataUrl = await QRCode.toDataURL(qrUrl, {
-          errorCorrectionLevel: "H",
-          type: "image/png",
-          width: 300,
-          margin: 2,
-          color: {
-            dark: "#000000",
-            light: "#FFFFFF",
-          },
-        });
-        setQrCodeUrl(qrDataUrl);
-      } catch (error) {
-        console.error("QR generation error:", error);
-      }
-    };
-
-    generateQRCode();
+    // QR is now generated on-demand in handleQRClick
+    // This useEffect is a placeholder if we need to do anything else on encryptedUserId change
   }, [encryptedUserId]);
 
   const trackProfileVisit = async (source) => {
@@ -254,11 +233,21 @@ const getVisitorId = () => {
   };
 
   const handleScanClick = () => {
-    // Add QR code scanner functionality here
-    toast.info("QR Scanner feature coming soon!");
-    // You can integrate qr-scanner library: npm install qr-scanner
-    // For now, navigate to scan page or show scanner UI
-    // navigate('/scan');
+    if (!encryptedUserId) {
+      toast.error("Share link not ready yet. Please try again.");
+      return;
+    }
+
+    // When user taps Scan, open the public card URL
+    try {
+      const publicUrl = `${window.location.origin}/my-card/${encodeURIComponent(
+        encryptedUserId,
+      )}`;
+      window.location.href = publicUrl;
+    } catch (err) {
+      console.error("Failed to open public card view", err);
+      toast.error("Unable to open public card view");
+    }
   };
 
   const handleShareClick = async () => {
@@ -327,13 +316,25 @@ const getVisitorId = () => {
           return;
         }
 
-        // Build QR URL pointing to the QR scan handler
-        // The backend will decrypt the user ID, create a share record, generate a token, and redirect
-        const baseUrl = process.env.REACT_APP_API_URL;
-        const qrUrl = `${baseUrl}/analytics/qr/${encodeURIComponent(encryptedUserId)}`;
+        // Generate a fresh share link for the QR code
+        // This creates a new share record with type "QR"
+        const authToken = localStorage.getItem("token");
+        const resp = await axios.post(
+          `${API_BASE_URL}/analytics/share-link`,
+          { type: "QR" },
+          {
+            headers: {
+              Authorization: authToken ? `Bearer ${authToken}` : "",
+            },
+          },
+        );
 
-        // Generate QR code pointing to the QR scan endpoint
-        const qrDataUrl = await QRCode.toDataURL(qrUrl, {
+        const path = resp.data?.data?.path;
+        const baseUrl = window.location.origin;
+        const shareUrl = `${baseUrl}${path}`;
+
+        // QR code encodes the public card URL directly
+        const qrDataUrl = await QRCode.toDataURL(shareUrl, {
           errorCorrectionLevel: "H",
           type: "image/png",
           width: 300,
@@ -508,6 +509,7 @@ const getVisitorId = () => {
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen flex justify-center w-full lg:bg-gray-50">

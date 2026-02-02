@@ -316,6 +316,8 @@ const PublicCardView = () => {
             />
           </div>
         </div>
+        
+
 
         {/* Main Content - Scrollable */}
         <div className="flex-1 overflow-y-auto pb-20 lg:rounded-b-2xl">

@@ -20,6 +20,7 @@ const router = Router();
 
 // QR Code scan handler - redirect to share link
 router.get("/qr/:encryptedUserId", handleQRScan);
+router.get("/qr", handleQRScan);
 
 // Generate a short-lived share token (20 mins) for public link
 router.post("/share-link", generateShareLink);
