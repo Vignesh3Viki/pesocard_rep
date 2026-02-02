@@ -22,9 +22,10 @@ import editProfileService from "../../edit-profile/services/editProfileService";
 import { toast } from "sonner";
 import { getImageUrl } from "@/lib/imageUtils";
 import axios from "axios";
+import { API_URL } from "../../../config";
 
 const MyCardPage = () => {
-  const API_BASE_URL = process.env.REACT_APP_API_URL;
+  const API_BASE_URL = API_URL;
 
   // Get or create visitor ID (persists across sessions)
 
@@ -169,7 +170,7 @@ const getVisitorId = () => {
       if (!encryptedUserId) return;
 
       try {
-        const baseUrl = process.env.REACT_APP_API_URL;
+        const baseUrl = API_URL;
         const qrUrl = `${baseUrl}/analytics/qr/${encodeURIComponent(encryptedUserId)}`;
 
         const qrDataUrl = await QRCode.toDataURL(qrUrl, {
@@ -329,7 +330,7 @@ const getVisitorId = () => {
 
         // Build QR URL pointing to the QR scan handler
         // The backend will decrypt the user ID, create a share record, generate a token, and redirect
-        const baseUrl = process.env.REACT_APP_API_URL;
+        const baseUrl = API_URL;
         const qrUrl = `${baseUrl}/analytics/qr/${encodeURIComponent(encryptedUserId)}`;
 
         // Generate QR code pointing to the QR scan endpoint
@@ -449,7 +450,6 @@ const getVisitorId = () => {
 
     try {
       setIsLoading(true);
-      const API_URL = process.env.REACT_APP_API_URL;
       const token = localStorage.getItem("token");
 
       console.log("Delete request - API_URL:", API_URL);

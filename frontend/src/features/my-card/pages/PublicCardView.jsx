@@ -8,6 +8,7 @@ import { ContactIcons } from "@/components/ContactIcons";
 import { toast } from "sonner";
 import { getImageUrl } from "@/lib/imageUtils";
 import axios from "axios";
+import { API_URL } from "../../../config";
 
 const PublicCardView = () => {
   const { id: generatedToken } = useParams();
@@ -55,7 +56,7 @@ const PublicCardView = () => {
       const visitorId = getVisitorId();
 
       await axios.post(
-        `${process.env.REACT_APP_API_URL}/analytics/profile-visit`,
+        `${API_URL}/analytics/profile-visit`,
         {
           visitor_id: visitorId,
           visiting_source: source,
@@ -94,7 +95,7 @@ const PublicCardView = () => {
       }
 
       await axios.post(
-        `${process.env.REACT_APP_API_URL}/analytics/view`,
+        `${API_URL}/analytics/view`,
         {
           visitor_id: visitorId,
           country_name: countryName,
@@ -142,9 +143,9 @@ const PublicCardView = () => {
           return;
         }
 
-        const API_URL = process.env.REACT_APP_API_URL;
+        const currentApiUrl = API_URL;
 
-        if (!API_URL) {
+        if (!currentApiUrl) {
           console.error("API_URL not configured");
           toast.error("Configuration error");
           setIsLoading(false);
@@ -152,7 +153,7 @@ const PublicCardView = () => {
         }
 
         // Fetch profile data from card endpoint
-        const response = await axios.get(`${API_URL}/card/details`, {
+        const response = await axios.get(`${currentApiUrl}/card/details`, {
           headers: {
             Authorization: `Bearer ${generatedToken}`,
           },
@@ -192,7 +193,7 @@ const PublicCardView = () => {
         const visitingSource = getVisitingSource();
         await axios
           .post(
-            `${process.env.REACT_APP_API_URL}/analytics/profile-visit`,
+            `${API_URL}/analytics/profile-visit`,
             {
               visitor_id: visitorId,
               visiting_source: visitingSource,
@@ -240,9 +241,9 @@ const PublicCardView = () => {
         return;
       }
 
-      const API_URL = process.env.REACT_APP_API_URL;
+      const currentApiUrl = API_URL;
 
-      const response = await axios.get(`${API_URL}/auth/download-vcard`, {
+      const response = await axios.get(`${currentApiUrl}/auth/download-vcard`, {
         headers: {
           Authorization: `Bearer ${generatedToken}`,
         },
@@ -272,7 +273,7 @@ const PublicCardView = () => {
       // Track save with Bearer token
       try {
         await axios.post(
-          `${process.env.REACT_APP_API_URL}/analytics/save`,
+          `${API_URL}/analytics/save`,
           {
             visitor_id: getVisitorId(),
           },
