@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
-import * as authService from "./auth.service";
-import { generateToken, verifyToken } from "../../utils/jwt";
-import { comparePassword } from "../../utils/password";
-import { sendSuccess, sendError } from "../../utils/response";
+import * as authService from "./auth.service.js";
+import { generateToken, verifyToken } from "../../utils/jwt.js";
+import { comparePassword } from "../../utils/password.js";
+import { sendSuccess, sendError } from "../../utils/response.js";
 
 export const signup = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -76,15 +76,15 @@ export const updateProfile = asyncHandler(
       console.log("Profile data:", profileData);
       console.log("Files:", files ? "present" : "not present");
 
-      // ✅ LOCAL FILE PATHS
+      // ✅ Store filenames only (frontend builds full URL)
       if (files?.profile_photo?.[0]) {
-        profileData.profile_photo_url = `/uploads/${files.profile_photo[0].filename}`;
-        console.log("Profile photo URL:", profileData.profile_photo_url);
+        profileData.profile_photo_url = files.profile_photo[0].filename;
+        console.log("Profile photo filename:", profileData.profile_photo_url);
       }
 
       if (files?.cover_photo?.[0]) {
-        profileData.cover_photo_url = `/uploads/${files.cover_photo[0].filename}`;
-        console.log("Cover photo URL:", profileData.cover_photo_url);
+        profileData.cover_photo_url = files.cover_photo[0].filename;
+        console.log("Cover photo filename:", profileData.cover_photo_url);
       }
 
       const updatedUser = await authService.updateUserProfile(
@@ -149,8 +149,27 @@ export const downloadVCard = asyncHandler(
         return;
       }
 
+      const buildUploadUrl = (value: string, baseUrl: string): string => {
+        if (value.startsWith("http://") || value.startsWith("https://")) {
+          return value;
+        }
+        const trimmed = value.startsWith("/") ? value.slice(1) : value;
+        const normalized = trimmed.startsWith("uploads/")
+          ? trimmed
+          : `uploads/${trimmed}`;
+        return `${baseUrl}/${normalized}`;
+      };
+
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      const userForVCard = {
+        ...user,
+        profile_photo_url: user.profile_photo_url
+          ? buildUploadUrl(user.profile_photo_url, baseUrl)
+          : null,
+      };
+
       // Generate vCard format with base64 encoded photo
-      const vCardContent = await authService.generateVCardFormat(user);
+      const vCardContent = await authService.generateVCardFormat(userForVCard);
 
       // Set response headers for file download
       const fileName = `${user.first_name || "user"}-${

@@ -1,6 +1,6 @@
 import { Response, NextFunction } from "express";
-import { verifyToken } from "../utils/jwt";
-import { sendError } from "../utils/response";
+import { verifyToken } from "../utils/jwt.js";
+import { sendError } from "../utils/response.js";
 
 export const protect = async (req: any, res: Response, next: NextFunction) => {
   let token;

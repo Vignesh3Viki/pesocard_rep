@@ -1,5 +1,5 @@
 import express from "express";
-import { getCardById } from "./card.controller";
+import { getCardById } from "./card.controller.js";
 
 const router = express.Router();
 

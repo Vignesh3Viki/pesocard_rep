@@ -22,9 +22,10 @@ import editProfileService from "../../edit-profile/services/editProfileService";
 import { toast } from "sonner";
 import { getImageUrl } from "@/lib/imageUtils";
 import axios from "axios";
+import { API_URL } from "../../../config";
 
 const MyCardPage = () => {
-  const API_BASE_URL = process.env.REACT_APP_API_URL;
+  const API_BASE_URL = API_URL;
 
   // Get or create visitor ID (persists across sessions)
 
@@ -451,7 +452,6 @@ const getVisitorId = () => {
 
     try {
       setIsLoading(true);
-      const API_URL = process.env.REACT_APP_API_URL;
       const token = localStorage.getItem("token");
 
       console.log("Delete request - API_URL:", API_URL);

@@ -1,6 +1,6 @@
-import { query } from "../../config/db";
-import { hashPassword } from "../../utils/password";
-import { User, UpdateProfileInput } from "./auth.types";
+import { query } from "../../config/db.js";
+import { hashPassword } from "../../utils/password.js";
+import { User, UpdateProfileInput } from "./auth.types.js";
 import * as crypto from "crypto";
 import https from "https";
 

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_URL } from "../../../config";
 
 const analyticsService = {
   // Fetch profile analytics from RPC
@@ -6,7 +7,7 @@ const analyticsService = {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/analytics/profile-analytics`,
+        `${API_URL}/analytics/profile-analytics`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -25,7 +26,7 @@ const analyticsService = {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/analytics`,
+        `${API_URL}/analytics`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -45,7 +46,7 @@ const analyticsService = {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/analytics/metrics`,
+        `${API_URL}/analytics/metrics`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -65,7 +66,7 @@ const analyticsService = {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/analytics/chart/${type}`,
+        `${API_URL}/analytics/chart/${type}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -85,7 +86,7 @@ const analyticsService = {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/analytics/report/download`,
+        `${API_URL}/analytics/report/download`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -114,7 +115,7 @@ const analyticsService = {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/analytics/export`,
+        `${API_URL}/analytics/export`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

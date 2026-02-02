@@ -1,8 +1,10 @@
+import { API_URL } from "../../../config";
+
 /**
  * Save / Update profile data
  */
 export async function saveProfile(data) {
-  const response = await fetch(`${process.env.REACT_APP_API_URL}/profile`, {
+  const response = await fetch(`${API_URL}/profile`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -21,7 +23,7 @@ export async function saveProfile(data) {
  * Get saved profile data
  */
 export async function getProfile() {
-  const response = await fetch(`${process.env.REACT_APP_API_URL}/profile`);
+  const response = await fetch(`${API_URL}/profile`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch profile");
