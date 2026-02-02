@@ -1,9 +1,9 @@
 import { Router } from "express";
-import * as authController from "./auth.controller";
-import { protect } from "../../middleware/auth.middleware";
-import upload from "../../middleware/upload.middleware";
-import { validate } from "../../middleware/validate.middleware";
-import { loginSchema, signupSchema } from "./auth.schema";
+import * as authController from "./auth.controller.js";
+import { protect } from "../../middleware/auth.middleware.js";
+import upload from "../../middleware/upload.middleware.js";
+import { validate } from "../../middleware/validate.middleware.js";
+import { loginSchema, signupSchema } from "./auth.schema.js";
 
 const router = Router();
 

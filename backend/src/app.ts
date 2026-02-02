@@ -3,8 +3,13 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
-import routes from "./routes";
-import { errorHandler, notFound } from "./middleware/error.middleware";
+import { fileURLToPath } from "url";
+import routes from "./routes.js";
+import { errorHandler, notFound } from "./middleware/error.middleware.js";
+
+// ES module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const DEBUG_REQUEST_LOGS = process.env.DEBUG_REQUEST_LOGS === "true";

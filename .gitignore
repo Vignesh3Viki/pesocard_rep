@@ -1,1 +1,6 @@
 /.vscode
+/backend/node_modules
+/backend/dist
+/backend/uploads
+/backend/node_modules
+backend/dist.zip

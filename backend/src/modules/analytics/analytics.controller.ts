@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
-import { sendSuccess, sendError } from "../../utils/response";
+import { sendSuccess, sendError } from "../../utils/response.js";
 import {
   createCardShare,
   addUserView,
@@ -8,9 +8,9 @@ import {
   addProfileVisit,
   getUserCardMetrics,
   getUserProfileAnalytics,
-} from "./analytics.service";
-import { encryptUserId, decryptUserId } from "../auth/auth.service";
-import { generateToken, verifyToken } from "../../utils/jwt";
+} from "./analytics.service.js";
+import { encryptUserId, decryptUserId } from "../auth/auth.service.js";
+import { generateToken, verifyToken } from "../../utils/jwt.js";
 
 export const trackView = asyncHandler(async (req: Request, res: Response) => {
   const { visitor_id, country_name } = req.body;

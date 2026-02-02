@@ -1,10 +1,11 @@
 {
   "name": "backend",
   "version": "1.0.0",
+  "type": "module",
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon src/server.ts",
-    "build": "tsc && cp package.json dist/package.json",
+    "build": "tsc && node -e \"require('fs').copyFileSync('package.json', 'dist/package.json')\"",
     "start": "node dist/server.js"
   },
   "keywords": [],

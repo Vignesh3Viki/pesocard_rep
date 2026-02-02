@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
-import pool from "../../config/db";
-import { decryptUserId } from "../auth/auth.service";
-import { sendSuccess, sendError } from "../../utils/response";
-import { verifyToken } from "../../utils/jwt";
+import pool from "../../config/db.js";
+import { decryptUserId } from "../auth/auth.service.js";
+import { sendSuccess, sendError } from "../../utils/response.js";
+import { verifyToken } from "../../utils/jwt.js";
 
 /**
  * Get card by token

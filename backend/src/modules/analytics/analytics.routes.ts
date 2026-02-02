@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { validate } from "../../middleware/validate.middleware";
+import { validate } from "../../middleware/validate.middleware.js";
 import {
   shareSchema,
   viewSchema,
   saveSchema,
   profileVisitSchema,
-} from "./analytics.schema";
+} from "./analytics.schema.js";
 import {
   trackView,
   trackSave,
@@ -14,7 +14,7 @@ import {
   generateShareLink,
   getProfileAnalytics,
   handleQRScan,
-} from "./analytics.controller";
+} from "./analytics.controller.js";
 
 const router = Router();
 
