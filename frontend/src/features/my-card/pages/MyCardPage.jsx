@@ -371,9 +371,10 @@ const getVisitorId = () => {
       toast.loading("Generating wallpaper...");
 
       // Set dimensions based on device type
-      const exportDimensions = isDesktop
-        ? { width: 1080, height: 1080 }
-        : { width: 540, height: 720 };
+      const exportDimensions = {
+          width: 1080,
+          height: 1920,
+        };
 
       // Convert wallpaper to PNG image
       const dataUrl = await toPng(wallpaperRef.current, {
