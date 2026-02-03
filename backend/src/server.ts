@@ -6,7 +6,7 @@ import fs from "fs";
 import https from "https";
 import http from "http";
 
-const PORT = process.env.PORT || 3000;
+const PORT = Number.parseInt(env.PORT ?? "5000", 10) || 5000;
 const SSL_KEY_PATH = "/etc/ssl/pesocard/privkey.pem";
 const SSL_CERT_PATH = "/etc/ssl/pesocard/cert.pem";
 const SSL_CA_PATH = "/etc/ssl/pesocard/chain.pem";
