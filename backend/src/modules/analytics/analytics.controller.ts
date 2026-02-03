@@ -239,45 +239,36 @@ export const getProfileAnalytics = asyncHandler(
   },
 );
 
-export const handleQRScan = asyncHandler(
-  async (req: Request, res: Response) => {
-    const encryptedUserId = req.query.t || req.params.encryptedUserId;
+export const handleQRScan = asyncHandler(async (req: Request, res: Response) => {
+  const token = req.query.t || req.params.token;
 
-    if (!encryptedUserId) {
-      sendError(res, "Encrypted user ID required", 400);
-      return;
-    }
+  if (!token) {
+    sendError(res, "QR token required", 400);
+    return;
+  }
 
-    let decodedEncryptedUserId: string;
-    try {
-      decodedEncryptedUserId = decodeURIComponent(String(encryptedUserId));
-    } catch {
-      sendError(res, "Invalid QR code", 400);
-      return;
-    }
+  let decoded: any;
+  try {
+    decoded = verifyToken(String(token));
+  } catch {
+    sendError(res, "Invalid or expired QR token", 400);
+    return;
+  }
 
-    const decryptedUserId = decryptUserId(decodedEncryptedUserId);
+  const userId = parseInt(decoded?.userId, 10);
+  if (!userId || isNaN(userId)) {
+    sendError(res, "Invalid user in QR token", 400);
+    return;
+  }
 
-    if (!decryptedUserId) {
-      sendError(res, "Invalid or expired QR code", 400);
-      return;
-    }
+  const share = await createCardShare(userId, "QR");
 
-    const userId = parseInt(decryptedUserId, 10);
-    if (!userId || isNaN(userId)) {
-      sendError(res, "Invalid user ID in QR code", 400);
-      return;
-    }
+  const newToken = generateToken(
+    { sid: share.id, userId, type: "QR" },
+    "999y"
+  );
 
-    // Create a card share record for QR scan tracking
-    const share = await createCardShare(userId, "QR");
-
-    // Generate a token tied to this user/card (no expiry)
-    const token = generateToken({ sid: share.id, userId: userId, type: "QR" });
-
-    // Redirect to the card page with the share token
-    res.redirect(
-      `${process.env.WEBSITE_URL}/my-card/${encodeURIComponent(token)}`,
-    );
-  },
-);
+  res.redirect(
+    `${process.env.WEBSITE_URL}/my-card/${encodeURIComponent(newToken)}`
+  );
+});
