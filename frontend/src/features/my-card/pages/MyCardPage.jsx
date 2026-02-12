@@ -234,21 +234,7 @@ const getVisitorId = () => {
   };
 
   const handleScanClick = () => {
-    if (!encryptedUserId) {
-      toast.error("Share link not ready yet. Please try again.");
-      return;
-    }
-
-    // When user taps Scan, open the public card URL
-    try {
-      const publicUrl = `${window.location.origin}/my-card/${encodeURIComponent(
-        encryptedUserId,
-      )}`;
-      window.location.href = publicUrl;
-    } catch (err) {
-      console.error("Failed to open public card view", err);
-      toast.error("Unable to open public card view");
-    }
+    toast.info("This feature is not yet available. Please check back soon!");
   };
 
   const handleShareClick = async () => {

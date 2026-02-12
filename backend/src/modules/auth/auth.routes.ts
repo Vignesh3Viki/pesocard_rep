@@ -10,6 +10,7 @@ const router = Router();
 // Public routes
 router.post("/signup", validate(signupSchema), authController.signup);
 router.post("/login", validate(loginSchema), authController.login);
+router.post("/refresh-token", authController.refreshAccessToken);
 
 // Protected routes
 router.get("/profile", protect, authController.getProfile);

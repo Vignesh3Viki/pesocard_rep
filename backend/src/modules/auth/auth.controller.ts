@@ -4,6 +4,8 @@ import * as authService from "./auth.service.js";
 import { generateToken, verifyToken } from "../../utils/jwt.js";
 import { comparePassword } from "../../utils/password.js";
 import { sendSuccess, sendError } from "../../utils/response.js";
+import { generateAccessToken, generateRefreshToken } from "../../utils/jwt.js";
+
 
 export const signup = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -29,12 +31,19 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 
-  const token = generateToken({ id: user.id, email: user.email });
+  const accessToken = generateAccessToken({ id: user.id, email: user.email });
+  const refreshToken = generateRefreshToken({ id: user.id });
 
-  // Remove password from user object
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 10 * 365 * 24 * 60 * 60 * 1000, // 10 YEARS
+  });
+
   delete user.password;
 
-  sendSuccess(res, { user, token }, "Login successful");
+  sendSuccess(res, { user, token: accessToken }, "Login successful");
 });
 
 export const getProfile = asyncHandler(async (req: Request, res: Response) => {
@@ -57,6 +66,18 @@ export const getProfile = asyncHandler(async (req: Request, res: Response) => {
 
   sendSuccess(res, { user }, "Profile retrieved successfully");
 });
+
+export const refreshAccessToken = async (req, res, next) => {
+  try {
+    return res.status(200).json({
+      success: true,
+      message: "Refresh token route working",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 export const updateProfile = asyncHandler(
   async (req: Request, res: Response) => {

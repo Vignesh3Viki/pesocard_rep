@@ -6,12 +6,20 @@ import path from "path";
 import { fileURLToPath } from "url";
 import routes from "./routes.js";
 import { errorHandler, notFound } from "./middleware/error.middleware.js";
+// @ts-ignore
+import cookieParser from "cookie-parser";
+
+
 
 // ES module equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+app.use(express.json());
+app.use(cookieParser());
+
 const DEBUG_REQUEST_LOGS = process.env.DEBUG_REQUEST_LOGS === "true";
 
 app.use((req, _res, next) => {
@@ -49,7 +57,16 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" },
   }),
 );
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://your-live-domain.com"
+    ],
+    credentials: true,
+  })
+);
 app.options(/.*/, cors(corsOptions)); // Preflight handler for all routes
 app.use(morgan("dev"));
 app.use(express.json());
