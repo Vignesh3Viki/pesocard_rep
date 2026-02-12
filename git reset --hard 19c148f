@@ -1,0 +1,46 @@
+[33m19c148f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Initial commit
+[33m8ce7dff[m Merge pull request #15 from technikko/develop
+[33me5ad175[m[33m ([m[1;31morigin/develop[m[33m)[m Merge pull request #14 from technikko/main
+[33me66b0b3[m Merge pull request #13 from technikko/develop
+[33m24e573c[m Merge branch 'develop' of https://github.com/technikko/pesocard-2026 into develop
+[33md4e4c68[m Refactor Wallpaper component: clean up code formatting and improve readability
+[33m83760b1[m Merge pull request #12 from technikko/develop
+[33m76e10ef[m Merge pull request #11 from technikko/main
+[33mfe16afc[m Merge branch 'main' of https://github.com/technikko/pesocard-2026
+[33m2382776[m Merge pull request #10 from technikko/develop
+[33m1a63e67[m Merge pull request #9 from technikko/main
+[33m3c265ab[m Refactor backend to support ES modules; update dev-server scripts and QR scan handling
+[33mf47feba[m Refactor handleQRScan: streamline token handling and improve error messages
+[33m359eea6[m Merge pull request #8 from technikko/develop
+[33m4f7790b[m Refactor backend setup: update dev script, enhance TypeScript config
+[33m343f1d4[m Merge pull request #7 from technikko/develop
+[33m83d7a52[m Merge branch 'main' into develop
+[33m650666b[m Add react-qr-code dependency and update wallpaper dimensions for mobile support
+[33m28d1a6c[m Refactor QR code handling in MyCardPage and PublicCardView; update handleQRScan to support query parameters and improve error messages
+[33mbc33f16[m Switch backend to ES modules and update file imports
+[33m64a9582[m Switch to ES modules and add HTTPS support
+[33m9482464[m Update app icons and add favicon
+[33madf5df6[m Refactor API URL usage to centralized config import
+[33mb41c9d7[m Update imageUtils.ts
+[33mb482a12[m Update authService.js
+[33mdb263c9[m Merge pull request #6 from technikko/develop
+[33mb53d6ff[m Refactor request logging middleware to include environment and redact authorization header
+[33mc254e09[m Merge pull request #5 from technikko/develop
+[33m71ab9b8[m Add middleware to log incoming requests with method, URL, and headers
+[33mcbc30ec[m Merge pull request #4 from technikko/develop
+[33m65431ea[m Update token generation in generateShareLink and handleQRScan to remove expiry
+[33m1ea1ed7[m Refactor analytics components to improve metric calculations and display; update profile analytics to include view rate percentage and enhance user tracking functionality
+[33mb720e85[m Upgrade multer and @types/multer to v2
+[33mfede335[m Update environment configs and build script
+[33m694b298[m Refactor analytics.controller.ts to improve code readability and error handling for QR code decryption
+[33md299f4c[m Merge pull request #3 from technikko/develop
+[33mdb23a9a[m Update package.json and package-lock.json for multer version and add TypeScript dependency; modify analytics.controller.ts to ensure proper handling of encrypted user ID
+[33m0eab1fb[m Merge pull request #2 from technikko/develop
+[33m81cb47c[m Remove default API URL from contactService for improved configuration flexibility
+[33maf0d369[m Merge pull request #1 from technikko/develop
+[33m2b4490b[m Refactor authService to remove default API URL and improve Wallpaper component for mobile responsiveness
+[33m5998952[m Add Wallpaper component and integrate image download functionality
+[33mfb70df9[m Remove Cloudinary integration and switch to local uploads
+[33m8eb23dc[m Add environment files and update API URL handling
+[33m2ac109e[m Add .gitignore files and update app metadata
+[33m814aa8f[m Initial project setup with analytics and card features
