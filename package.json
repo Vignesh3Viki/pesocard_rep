@@ -1,5 +1,1 @@
-{
-  "dependencies": {
-    "cors": "^2.8.6"
-  }
-}
+{\n  "name": "pesocard_rep",\n  "version": "1.0.0",\n  "scripts": {\n    "install": "concurrently \"npm install --prefix ./frontend\" \"npm install --prefix ./backend\"",\n    "start": "concurrently \"npm start --prefix ./frontend\" \"npm start --prefix ./backend\""\n  },\n  "dependencies": {},\n  "devDependencies": {\n    "concurrently": "^7.0.0"\n  }\n}
